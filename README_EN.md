@@ -24,6 +24,21 @@
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
   <img src="https://img.shields.io/badge/PostgreSQL-TimescaleDB-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="TimescaleDB">
   <img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/badge/Pandas-Data-150458?style=for-the-badge&logo=pandas&logoColor=white" alt="Pandas">
+  <img src="https://img.shields.io/badge/NumPy-Compute-013243?style=for-the-badge&logo=numpy&logoColor=white" alt="NumPy">
+  <img src="https://img.shields.io/badge/TA--Lib-Technical_Analysis-green?style=for-the-badge" alt="TA-Lib">
+  <img src="https://img.shields.io/badge/Pydantic-Validation-E92063?style=for-the-badge&logo=pydantic&logoColor=white" alt="Pydantic">
+  <img src="https://img.shields.io/badge/CCXT-Exchange_API-000?style=for-the-badge" alt="CCXT">
+  <img src="https://img.shields.io/badge/Cryptofeed-WebSocket-purple?style=for-the-badge" alt="Cryptofeed">
+  <img src="https://img.shields.io/badge/AKShare-China_Stock-red?style=for-the-badge" alt="AKShare">
+  <img src="https://img.shields.io/badge/yfinance-US_Stock-7B68EE?style=for-the-badge" alt="yfinance">
+  <img src="https://img.shields.io/badge/OpenBB-Aggregation-orange?style=for-the-badge" alt="OpenBB">
+  <img src="https://img.shields.io/badge/QuantLib-Derivatives-blue?style=for-the-badge" alt="QuantLib">
+  <img src="https://img.shields.io/badge/FRED_API-Macro-1E90FF?style=for-the-badge" alt="FRED">
+  <img src="https://img.shields.io/badge/Telegram_Bot-Bot-26A5E4?style=for-the-badge&logo=telegram&logoColor=white" alt="Telegram Bot">
+  <img src="https://img.shields.io/badge/AsyncIO-Async-FF6F00?style=for-the-badge&logo=python&logoColor=white" alt="AsyncIO">
+  <img src="https://img.shields.io/badge/AIOHTTP-HTTP-2C5BB4?style=for-the-badge&logo=aiohttp&logoColor=white" alt="AIOHTTP">
+  <img src="https://img.shields.io/badge/HTTPX-HTTP-3d4f5d?style=for-the-badge" alt="HTTPX">
 </p>
 
 <p>
@@ -686,6 +701,49 @@ cd services/data-service
 
 </details>
 
+<details>
+<summary><strong>Expand👉 Verification</strong></summary>
+
+```bash
+./scripts/verify.sh
+```
+
+</details>
+
+<details>
+<summary><strong>Expand👉 View Logs</strong></summary>
+
+```bash
+# data-service logs
+tail -f services/data-service/logs/backfill.log
+tail -f services/data-service/logs/ws_klines.log
+tail -f services/data-service/logs/metrics.log
+
+# trading-service logs
+tail -f services/trading-service/logs/simple_scheduler.log
+
+# telegram-service logs
+tail -f services/telegram-service/logs/bot.log
+
+# Daemon logs
+tail -f daemon.log
+```
+
+</details>
+
+<details>
+<summary><strong>Expand👉 Process Monitoring</strong></summary>
+
+```bash
+# View all related processes
+ps aux | grep -E "data-service|trading-service|telegram|simple_scheduler"
+
+# View resource usage
+htop -p $(pgrep -d',' -f "simple_scheduler|crypto_trading")
+```
+
+</details>
+
 ### Database Operations
 
 <details>
@@ -704,6 +762,11 @@ SELECT MAX(bucket_ts) FROM market_data.candles_1m;
 
 -- Token list
 SELECT DISTINCT symbol FROM market_data.candles_1m ORDER BY symbol;
+
+-- Single token data
+SELECT * FROM market_data.candles_1m 
+WHERE symbol = 'BTCUSDT' 
+ORDER BY bucket_ts DESC LIMIT 10;
 ```
 
 </details>
@@ -718,6 +781,53 @@ sqlite3 libs/database/services/telegram-service/market_data.db
 # Common queries
 .tables                          -- List all tables
 .schema "K线形态扫描器.py"        -- View table schema
+
+-- View pattern data
+SELECT * FROM "K线形态扫描器.py" 
+WHERE 形态类型 LIKE '%头肩%' 
+LIMIT 10;
+```
+
+</details>
+
+### Data Backup
+
+<details>
+<summary><strong>Expand👉 Export TimescaleDB</strong></summary>
+
+```bash
+# Run export script (background)
+nohup ./scripts/export_timescaledb.sh &
+
+# Check progress
+tail -f backups/timescaledb/export.log
+ls -lh backups/timescaledb/
+
+# Output files:
+# - candles_1m_*.bin.zst      (~15GB, candlestick data)
+# - futures_metrics_*.bin.zst (~800MB, futures data)
+# - schema_*.sql.zst          (table schema)
+# - restore_*.sh              (restore script)
+```
+
+</details>
+
+<details>
+<summary><strong>Expand👉 Restore Data</strong></summary>
+
+```bash
+cd backups/timescaledb
+
+# Restore schema
+zstd -d schema_*.sql.zst -c | psql -h localhost -p 5433 -U postgres -d market_data
+
+# Restore candlestick data
+zstd -d candles_1m_*.bin.zst -c | psql -h localhost -p 5433 -U postgres -d market_data \
+    -c "COPY market_data.candles_1m FROM STDIN WITH (FORMAT binary)"
+
+# Restore futures data
+zstd -d futures_metrics_*.bin.zst -c | psql -h localhost -p 5433 -U postgres -d market_data \
+    -c "COPY market_data.binance_futures_metrics_5m FROM STDIN WITH (FORMAT binary)"
 ```
 
 </details>
@@ -759,6 +869,22 @@ pip install tradingpattern --no-deps
 # Restart trading-service
 cd services/trading-service
 ./scripts/start.sh restart
+```
+
+</details>
+
+<details>
+<summary><strong>Expand👉 Q: Database connection failed?</strong></summary>
+
+```bash
+# Check if PostgreSQL is running
+sudo systemctl status postgresql
+
+# Check port
+ss -tlnp | grep 5433
+
+# Test connection
+PGPASSWORD=postgres psql -h localhost -p 5433 -U postgres -c "\l"
 ```
 
 </details>

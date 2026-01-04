@@ -21,6 +21,7 @@ __pycache__/
 *.pyo
 .venv/
 venv/
+*.png
 
 # ====================
 # Node
@@ -94,3 +95,10 @@ config/.env
 *.db-wal
 *.db-journal
 services/ai-service/data/
+services/markets-service/.venv
+services/ai-service/.venv
+services/data-service/.venv
+services/markets-service/.venv
+services/order-service/.venv
+services/telegram-service/.venv
+services/trading-service/.venv
