@@ -47,18 +47,168 @@
 
 ## 📖 目录
 
+- [🚀 快速开始](#-快速开始)
 - [✨ 核心特性](#-核心特性)
 - [🏗️ 架构设计](#️-架构设计)
 - [📊 数据规模](#-数据规模)
 - [📈 技术指标](#-技术指标)
 - [🤖 Telegram Bot](#-telegram-bot)
-- [🚀 快速开始](#-快速开始)
 - [📁 目录结构](#-目录结构)
 - [🔧 运维指南](#-运维指南)
 - [📞 联系方式](#-联系方式)
 - [💰 救救孩子](#-救救孩子)
 
 > 🤖 **从零开始？** 复制这行到 AI 助手：`按照 https://github.com/tukuaiai/tradecat/blob/main/README.md 的说明帮我安装 TradeCat`
+
+---
+
+<details open>
+<summary><strong>点击展开👉 🚀 快速开始</strong></summary>
+
+### 🤖 AI 一键安装（推荐）
+
+> 把下面的提示词复制到 **Claude / ChatGPT / Cursor / Kiro**，AI 会自动执行安装，零人工介入
+
+<details>
+<summary><strong>点击展开👉 📋 安装提示词</strong></summary>
+
+```
+按照 https://github.com/tukuaiai/tradecat/blob/main/README.md 的说明帮我安装 TradeCat
+
+要求：
+1. 读取文档后直接执行安装命令，不要生成脚本
+2. 一步一步执行，每步确认成功后继续
+3. 遇到错误自动分析并修复
+4. 安装完成后运行 ./scripts/verify.sh 验证
+5. 全程零人工介入
+```
+
+</details>
+
+### 🪟 Windows WSL2 用户
+
+> 📺 **视频教程**: [WSL2 安装配置教程](https://www.bilibili.com/video/BV1n14y1x7Y7/)
+
+先在 Windows 用户目录创建 `.wslconfig`：
+
+```powershell
+notepad "$env:USERPROFILE\.wslconfig"
+```
+
+写入：
+
+```ini
+[wsl2]
+memory=10GB
+processors=6
+swap=12GB
+networkingMode=mirrored
+```
+
+重启 WSL：`wsl --shutdown`，然后使用上面的 AI 安装提示词。
+
+### ⚙️ 配置 Bot Token（必须）
+
+```bash
+vim ~/.projects/tradecat/services/telegram-service/config/.env
+```
+
+```ini
+TELEGRAM_BOT_TOKEN=你的Token
+# 如需代理
+HTTPS_PROXY=http://127.0.0.1:7890
+```
+
+### 🎬 启动服务
+
+```bash
+cd ~/.projects/tradecat
+./scripts/start.sh daemon    # 启动
+./scripts/start.sh status    # 查看状态
+```
+
+### ✅ 验证安装
+
+```bash
+./scripts/verify.sh
+```
+
+---
+
+<details>
+<summary><strong>点击展开👉 📖 手动安装步骤</strong></summary>
+
+### 环境要求
+
+| 依赖 | 版本 | 说明 |
+|:---|:---|:---|
+| Python | 3.10+ | 推荐 3.12 |
+| PostgreSQL | 16+ | 需安装 TimescaleDB 扩展 |
+| TA-Lib | 0.4+ | 系统级库，需单独安装 |
+| SQLite | 3.x | 系统自带 |
+
+### 安装步骤
+
+#### 1. 克隆仓库
+
+```bash
+git clone https://github.com/tukuaiai/tradecat.git
+cd tradecat
+```
+
+#### 2. 安装系统依赖
+
+```bash
+# Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install -y build-essential python3-dev
+
+# 安装 TA-Lib
+wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
+tar -xzf ta-lib-0.4.0-src.tar.gz
+cd ta-lib && ./configure --prefix=/usr && make && sudo make install
+cd .. && rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
+```
+
+#### 3. 一键初始化
+
+```bash
+# 初始化所有服务（创建虚拟环境、安装依赖、复制配置）
+./scripts/init.sh
+
+# 或单独初始化某个服务
+./scripts/init.sh data-service
+```
+
+#### 4. 配置环境变量
+
+```bash
+# 编辑各服务配置（init.sh 已自动从 .env.example 复制）
+vim config/.env
+```
+
+#### 5. 启动服务
+
+```bash
+# 一键启动 + 守护（推荐，自动重启挂掉的服务）
+./scripts/start.sh daemon
+
+# 查看状态
+./scripts/start.sh status
+
+# 停止全部
+./scripts/start.sh stop
+```
+
+#### 6. 验证安装
+
+```bash
+./scripts/verify.sh
+```
+
+</details>
+
+</details>
 
 ---
 
@@ -492,156 +642,6 @@ K线维度:
 2. **期货面板** - 持仓量、多空比、情绪指标
 3. **高级面板** - 支撑阻力、ATR、流动性、趋势、VWAP
 4. **形态面板** - K线形态识别 (61种)
-
-</details>
-
----
-
-<details open>
-<summary><strong>点击展开👉 🚀 快速开始</strong></summary>
-
-### 🤖 AI 一键安装（推荐）
-
-> 把下面的提示词复制到 **Claude / ChatGPT / Cursor / Kiro**，AI 会自动执行安装，零人工介入
-
-<details>
-<summary><strong>点击展开👉 📋 安装提示词</strong></summary>
-
-```
-按照 https://github.com/tukuaiai/tradecat/blob/main/README.md 的说明帮我安装 TradeCat
-
-要求：
-1. 读取文档后直接执行安装命令，不要生成脚本
-2. 一步一步执行，每步确认成功后继续
-3. 遇到错误自动分析并修复
-4. 安装完成后运行 ./scripts/verify.sh 验证
-5. 全程零人工介入
-```
-
-</details>
-
-### 🪟 Windows WSL2 用户
-
-> 📺 **视频教程**: [WSL2 安装配置教程](https://www.bilibili.com/video/BV1n14y1x7Y7/)
-
-先在 Windows 用户目录创建 `.wslconfig`：
-
-```powershell
-notepad "$env:USERPROFILE\.wslconfig"
-```
-
-写入：
-
-```ini
-[wsl2]
-memory=10GB
-processors=6
-swap=12GB
-networkingMode=mirrored
-```
-
-重启 WSL：`wsl --shutdown`，然后使用上面的 AI 安装提示词。
-
-### ⚙️ 配置 Bot Token（必须）
-
-```bash
-vim ~/.projects/tradecat/services/telegram-service/config/.env
-```
-
-```ini
-TELEGRAM_BOT_TOKEN=你的Token
-# 如需代理
-HTTPS_PROXY=http://127.0.0.1:7890
-```
-
-### 🎬 启动服务
-
-```bash
-cd ~/.projects/tradecat
-./scripts/start.sh daemon    # 启动
-./scripts/start.sh status    # 查看状态
-```
-
-### ✅ 验证安装
-
-```bash
-./scripts/verify.sh
-```
-
----
-
-<details>
-<summary><strong>点击展开👉 📖 手动安装步骤</strong></summary>
-
-### 环境要求
-
-| 依赖 | 版本 | 说明 |
-|:---|:---|:---|
-| Python | 3.10+ | 推荐 3.12 |
-| PostgreSQL | 16+ | 需安装 TimescaleDB 扩展 |
-| TA-Lib | 0.4+ | 系统级库，需单独安装 |
-| SQLite | 3.x | 系统自带 |
-
-### 安装步骤
-
-#### 1. 克隆仓库
-
-```bash
-git clone https://github.com/tukuaiai/tradecat.git
-cd tradecat
-```
-
-#### 2. 安装系统依赖
-
-```bash
-# Ubuntu/Debian
-sudo apt-get update
-sudo apt-get install -y build-essential python3-dev
-
-# 安装 TA-Lib
-wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
-tar -xzf ta-lib-0.4.0-src.tar.gz
-cd ta-lib && ./configure --prefix=/usr && make && sudo make install
-cd .. && rm -rf ta-lib ta-lib-0.4.0-src.tar.gz
-```
-
-#### 3. 一键初始化
-
-```bash
-# 初始化所有服务（创建虚拟环境、安装依赖、复制配置）
-./scripts/init.sh
-
-# 或单独初始化某个服务
-./scripts/init.sh data-service
-```
-
-#### 4. 配置环境变量
-
-```bash
-# 编辑各服务配置（init.sh 已自动从 .env.example 复制）
-vim config/.env
-```
-
-#### 5. 启动服务
-
-```bash
-# 一键启动 + 守护（推荐，自动重启挂掉的服务）
-./scripts/start.sh daemon
-
-# 查看状态
-./scripts/start.sh status
-
-# 停止全部
-./scripts/start.sh stop
-```
-
-#### 6. 验证安装
-
-```bash
-./scripts/verify.sh
-```
-
-</details>
 
 </details>
 
