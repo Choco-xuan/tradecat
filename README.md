@@ -56,7 +56,7 @@
 - [📁 目录结构](#-目录结构)
 - [🔧 运维指南](#-运维指南)
 - [📞 联系方式](#-联系方式)
-- [💰 支持项目](#-支持项目)
+- [💰 救救孩子](#-救救孩子)
 
 > 🤖 **从零开始？** 复制这行到 AI 助手：`按照 https://github.com/tukuaiai/tradecat/blob/main/README.md 的说明帮我安装 TradeCat`
 
@@ -68,20 +68,21 @@
 <tr>
 <td width="50%">
 
-### 🔄 实时数据采集
-- **WebSocket 实时推送** - 币安期货全币种 K线
-- **多周期支持** - 1m/5m/15m/1h/4h/1d/1w
-- **期货指标** - 持仓量、多空比、资金费率
-- **数据延迟** - < 5 秒
+### 🔄 多市场数据采集
+- **加密货币** - CCXT (100+交易所) + Cryptofeed (WebSocket)
+- **A股市场** - AKShare + BaoStock (免费全量)
+- **美股/全球** - yfinance + pandas-datareader
+- **宏观经济** - FRED API (美联储官方)
+- **数据聚合** - OpenBB (100+数据源)
 
 </td>
 <td width="50%">
 
 ### 📊 38个技术指标
-- **趋势指标** - EMA/MACD/SuperTrend/ADX
-- **动量指标** - RSI/KDJ/CCI/MFI
-- **波动指标** - 布林带/ATR/Keltner
-- **形态识别** - 61种蜡烛 + 价格形态
+- **趋势指标** - EMA/MACD/SuperTrend/ADX/Ichimoku
+- **动量指标** - RSI/KDJ/CCI/MFI/WilliamsR
+- **波动指标** - 布林带/ATR/Keltner/支撑阻力
+- **形态识别** - TA-Lib 61种蜡烛 + 价格形态
 
 </td>
 </tr>
@@ -91,8 +92,8 @@
 ### 🤖 Telegram Bot
 - **实时排行榜** - 20+ 种排行卡片
 - **信号推送** - 形态突破、指标异常
-- **交互查询** - 单币详情、历史回溯
-- **高优先级** - 智能筛选活跃币种
+- **交互查询** - 单币详情、多周期面板
+- **AI 分析** - Wyckoff 深度市场分析
 
 </td>
 <td width="50%">
@@ -101,7 +102,7 @@
 - **K线数据** - 3.73亿条 (2018-至今)
 - **期货数据** - 9457万条 (2021-至今)
 - **存储引擎** - TimescaleDB 时序优化
-- **压缩备份** - zstd 压缩至 ~15GB
+- **衍生品定价** - QuantLib 期权/债券
 
 </td>
 </tr>
@@ -933,7 +934,7 @@ PGPASSWORD=postgres psql -h localhost -p 5433 -U postgres -c "\l"
 
 ---
 
-## 💰 支持项目
+## 💰 救救孩子
 
 救救孩子，感谢了，好人一生平安🙏🙏🙏
 
