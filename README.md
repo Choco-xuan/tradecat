@@ -522,6 +522,8 @@ K线维度:
 
 ### 🪟 Windows WSL2 用户
 
+> 📺 **视频教程**: [WSL2 安装配置教程](https://www.bilibili.com/video/BV1n14y1x7Y7/)
+
 先在 Windows 用户目录创建 `.wslconfig`：
 
 ```powershell
