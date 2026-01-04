@@ -3,8 +3,9 @@
 -- ============================================================
 
 -- ============================================================
--- raw.crypto_kline_1m - 加密货币 K线 (最小粒度)
+-- raw.crypto_kline_1m - 加密货币 K线 (最小粒度 1分钟)
 -- 保留策略: 6个月热数据，之后冷存
+-- 命名规范: {market}_{datatype}_{timeframe}
 -- ============================================================
 CREATE TABLE IF NOT EXISTS raw.crypto_kline_1m (
     exchange                TEXT NOT NULL,
@@ -167,7 +168,7 @@ ALTER TABLE raw.orderbook_delta SET (
 COMMENT ON TABLE raw.orderbook_delta IS '订单簿增量 (chunk=1h, compress=6h)';
 
 -- ============================================================
--- raw.crypto_metrics_5m - 加密期货指标
+-- raw.crypto_metrics_5m - 加密期货指标 (最小粒度 5分钟)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS raw.crypto_metrics_5m (
     exchange                TEXT NOT NULL,

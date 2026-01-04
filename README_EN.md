@@ -319,6 +319,82 @@ vim config/.env
 <details open>
 <summary><strong>Expand👉 🏗️ Architecture</strong></summary>
 
+### System Architecture
+
+```mermaid
+graph TD
+    subgraph External["🌐 Binance Exchange API"]
+        API_WS["WebSocket Candlestick"]
+        API_REST["REST Futures Metrics"]
+    end
+
+    subgraph DS["📦 data-service<br><small>Python, asyncio, ccxt, cryptofeed</small>"]
+        DS_BF["backfill<br>Historical Backfill"]
+        DS_LIVE["live<br>Real-time Collection"]
+        DS_MET["metrics<br>Futures Metrics"]
+    end
+
+    API_WS --> DS_LIVE
+    API_REST --> DS_MET
+
+    subgraph TSDB["🗄️ TimescaleDB :5433<br><small>PostgreSQL 16 + TimescaleDB</small>"]
+        TS_CANDLE[("candles_1m<br>373M rows / 99GB")]
+        TS_FUTURE[("futures_metrics<br>94M rows / 5GB")]
+    end
+
+    DS_BF --> TS_CANDLE
+    DS_LIVE --> TS_CANDLE
+    DS_MET --> TS_FUTURE
+
+    subgraph TS["📊 trading-service<br><small>Python, pandas, numpy, TA-Lib</small>"]
+        TR_ENG["engine<br>Compute Engine"]
+        TR_IND["indicators<br>38 Indicators"]
+        TR_SCH["scheduler<br>Scheduler"]
+        TR_PRI["priority<br>High Priority Filtering"]
+    end
+
+    TS_CANDLE --> TR_ENG
+    TS_FUTURE --> TR_ENG
+    TR_SCH --> TR_ENG
+    TR_ENG --> TR_IND
+    TR_ENG --> TR_PRI
+
+    SQLITE[("📁 market_data.db<br>SQLite Indicator Results 38 Tables")]
+    TR_IND --> SQLITE
+
+    subgraph AI["🧠 AI Smart Analysis"]
+        AI_WY["Wyckoff Methodology"]
+        AI_MOD["Multi-Model Support<br>Gemini / OpenAI / Claude / DeepSeek"]
+    end
+
+    subgraph TG["🤖 telegram-service<br><small>python-telegram-bot, aiohttp</small>"]
+        TG_CARD["cards<br>Ranking Cards 20+"]
+        TG_SIG["signals<br>Signal Detection Engine<br>109 Rules"]
+        TG_HAND["handlers<br>Command Handlers"]
+        TG_BOT["bot<br>Main Program"]
+    end
+
+    SQLITE --> TG_CARD
+    SQLITE --> TG_SIG
+    TG_CARD --> TG_BOT
+    TG_SIG --> TG_BOT
+    TG_HAND --> TG_BOT
+    AI_MOD --> TG_BOT
+    TS_CANDLE -.-> AI_WY
+    AI_WY --> AI_MOD
+
+    subgraph ORD["💹 order-service<br><small>Python, ccxt, cryptofeed</small>"]
+        ORD_MM["market-maker<br>Avellaneda-Stoikov MM"]
+        ORD_EX["Trade Execution"]
+    end
+
+    TS_CANDLE -.-> ORD_MM
+    TS_FUTURE -.-> ORD_MM
+
+    USER["👤 Telegram User<br>Rankings | Signals | AI Analysis"]
+    TG_BOT --> USER
+```
+
 ### Service Description
 
 | Service | Port | Responsibility | Tech Stack |
@@ -333,10 +409,34 @@ vim config/.env
 
 ### Data Flow
 
-```
-data-service → TimescaleDB → trading-service → SQLite → telegram-service → User
-                                                  ↓
-                                            ai-service (AI Analysis)
+```mermaid
+graph LR
+    subgraph Collection
+        A["🌐 Binance WebSocket"] --> B["📦 data-service"]
+    end
+    
+    subgraph Storage
+        B --> C[("🗄️ TimescaleDB<br>candles_1m<br>futures_metrics")]
+    end
+    
+    subgraph Calculation
+        C --> D["📊 trading-service<br>38 Indicators"]
+        D --> E[("📁 market_data.db<br>SQLite")]
+    end
+    
+    subgraph UserService
+        E --> F["🤖 telegram-service"]
+        F --> G["👤 User"]
+    end
+    
+    subgraph AIAnalysis
+        C -.-> H["🧠 AI Analysis<br>Gemini/OpenAI/Claude/DeepSeek"]
+        H -.-> F
+    end
+    
+    subgraph Trading
+        C -.-> I["💹 order-service<br>Market Making/Trading"]
+    end
 ```
 
 </details>
