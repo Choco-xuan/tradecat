@@ -119,6 +119,22 @@ TELEGRAM_BOT_TOKEN=你的Token
 HTTPS_PROXY=http://127.0.0.1:7890
 ```
 
+### 📦 下载历史数据（可选）
+
+从 HuggingFace 下载预置数据集，跳过漫长的历史回填：
+
+🔗 **数据集**: [huggingface.co/datasets/123olp/binance-futures-ohlcv-2018-2026](https://huggingface.co/datasets/123olp/binance-futures-ohlcv-2018-2026)
+
+```bash
+# 导入 K线数据 (3.73亿条)
+zstd -d candles_1m.bin.zst -c | psql -h localhost -p 5433 -U postgres -d market_data \
+    -c "COPY market_data.candles_1m FROM STDIN WITH (FORMAT binary)"
+
+# 导入期货数据 (9457万条)
+zstd -d futures_metrics_5m.bin.zst -c | psql -h localhost -p 5433 -U postgres -d market_data \
+    -c "COPY market_data.binance_futures_metrics_5m FROM STDIN WITH (FORMAT binary)"
+```
+
 ### 🎬 启动服务
 
 ```bash
