@@ -4,6 +4,28 @@
 
 ---
 
+## 🪟 Windows 用户：先配置 WSL2
+
+在 Windows 用户目录创建 `.wslconfig` 文件：
+
+```powershell
+notepad "$env:USERPROFILE\.wslconfig"
+```
+
+写入：
+
+```ini
+[wsl2]
+memory=10GB
+processors=6
+swap=12GB
+networkingMode=mirrored
+```
+
+然后重启 WSL：`wsl --shutdown`
+
+---
+
 ## 📋 安装提示词
 
 复制以下内容到 **Claude / ChatGPT**：
@@ -57,19 +79,9 @@ chmod +x install_tradecat.sh
 
 ## ✅ 验证安装
 
-安装完成后检查：
-
 ```bash
 cd ~/.projects/tradecat
 ./scripts/verify.sh
-```
-
-应显示：
-```
-✅ TimescaleDB 连接正常
-✅ TA-Lib 安装正常
-✅ 项目初始化完成
-✅ 所有服务就绪
 ```
 
 ---
@@ -77,7 +89,6 @@ cd ~/.projects/tradecat
 ## ⚙️ 配置 Bot (必须)
 
 ```bash
-# 编辑配置，填入你的 Telegram Bot Token
 vim ~/.projects/tradecat/services/telegram-service/config/.env
 ```
 
