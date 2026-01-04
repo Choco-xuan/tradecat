@@ -6,6 +6,7 @@ import os
 import sqlite3
 import time
 import logging
+import threading
 from datetime import datetime
 from typing import Dict, List, Optional, Set
 from dataclasses import dataclass, field
@@ -270,9 +271,12 @@ class SignalEngine:
 
 # 单例
 _engine: Optional[SignalEngine] = None
+_engine_lock = threading.Lock()
 
 def get_engine() -> SignalEngine:
     global _engine
     if _engine is None:
-        _engine = SignalEngine()
+        with _engine_lock:
+            if _engine is None:
+                _engine = SignalEngine()
     return _engine
